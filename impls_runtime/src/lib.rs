@@ -13,11 +13,12 @@ use pallet_nfts::{
 };
 use sp_runtime::traits::StaticLookup;
 use sp_runtime::{DispatchError, SaturatedConversion};
-use std::marker::PhantomData;
 
 use crate::errors::NftsError;
 use codec::{Decode, Encode, MaxEncodedLen};
 use frame_support::dispatch::RawOrigin;
+
+use sp_std::marker::PhantomData;
 
 enum NftsFunc {
     Create,
