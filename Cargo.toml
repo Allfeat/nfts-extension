@@ -7,7 +7,8 @@ edition = "2021"
 [workspace]
 members = [
     "test_contracts",
-    "impls_runtime"
+    "impls_runtime",
+    "types"
 ]
 
 [lib]
@@ -27,6 +28,8 @@ scale-info = { version = "2.5.0", default-features = false, features = [
     "derive",
 ], optional = true }
 
+nfts-extension-types = { version = "0.1.0", default-features = false, path = "./types"}
+
 [features]
 default = ["std"]
 std = [
@@ -34,4 +37,5 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
+    "nfts-extension-types/std"
 ]

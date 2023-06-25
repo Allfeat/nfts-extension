@@ -3,7 +3,6 @@
 mod errors;
 
 use frame_support::traits::Currency;
-use nfts_extension::types::{DefaultCollectionConfigExt, MintTypeExt};
 use pallet_contracts::chain_extension::{
     ChainExtension, Environment, Ext, InitState, RetVal, SysConfig,
 };
@@ -14,11 +13,15 @@ use pallet_nfts::{
 use sp_runtime::traits::StaticLookup;
 use sp_runtime::{DispatchError, SaturatedConversion};
 
-use crate::errors::NftsError;
 use codec::{Decode, Encode, MaxEncodedLen};
 use frame_support::dispatch::RawOrigin;
 
+use crate::errors::NftsError;
+use nfts_extension_types::{CollectionConfigExt, MintTypeExt};
 use sp_std::marker::PhantomData;
+
+pub type SubstrateCreateInput<T> =
+    nfts_extension_types::CreateInput<<T as frame_system::Config>::AccountId>;
 
 enum NftsFunc {
     Create,
@@ -61,22 +64,28 @@ where
 
         return match func_id {
             NftsFunc::Create => {
-                let args: CreateInputRaw = env.read_as()?;
+                let args: CreateInput = env.read_as()?;
                 let admin: T::AccountId = args.admin.into();
-                let CollectionConfigWrapperFor::<T>(config) = args.config.into();
+                //let CollectionConfigWrapperFor::<T>(config) = args.config.into();
 
                 let base_weight = <T as pallet_nfts::Config>::WeightInfo::create();
                 env.charge_weight(base_weight)?;
 
                 let caller = env.ext().address().clone();
                 let call_result = pallet_nfts::Pallet::<T>::create(
-                    RawOrigin::Signed(caller).into(),
+                    RawOrigin::Root.into(),
                     admin.into(),
-                    config,
+                    CollectionConfig {
+                        settings: Default::default(),
+                        max_supply: None,
+                        mint_settings: Default::default(),
+                    },
                 );
+                log::info!("{:?}", call_result);
                 match call_result {
                     Err(e) => {
                         let mapped_error = NftsError::try_from(e)?;
+                        log::info!("{:?}", mapped_error);
                         Ok(RetVal::Converging(mapped_error as u32))
                     }
                     Ok(_) => Ok(RetVal::Converging(NftsError::Success as u32)),
@@ -87,10 +96,9 @@ where
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
-struct CreateInputRaw {
-    pub origin: [u8; 32],
+struct CreateInput {
     pub admin: [u8; 32],
-    pub config: DefaultCollectionConfigExt,
+    //pub config: CollectionConfigExt<P, B, C>,
 }
 
 type NftsBalanceOf<T> = <<T as pallet_nfts::Config>::Currency as Currency<
@@ -102,11 +110,16 @@ type CollectionConfigFor<T> = CollectionConfig<
     <T as frame_system::Config>::BlockNumber,
     <T as pallet_nfts::Config>::CollectionId,
 >;
+type CollectionConfigExtFor<T> = CollectionConfigExt<
+    NftsBalanceOf<T>,
+    <T as frame_system::Config>::BlockNumber,
+    <T as pallet_nfts::Config>::CollectionId,
+>;
 
 /// Wrapper to implement From trait and convert Extension types to original types of the nfts pallet
 struct CollectionConfigWrapperFor<T: pallet_nfts::Config>(CollectionConfigFor<T>);
-impl<T: pallet_nfts::Config> From<DefaultCollectionConfigExt> for CollectionConfigWrapperFor<T> {
-    fn from(value: DefaultCollectionConfigExt) -> Self {
+impl<T: pallet_nfts::Config> From<CollectionConfigExtFor<T>> for CollectionConfigWrapperFor<T> {
+    fn from(value: CollectionConfigExtFor<T>) -> Self {
         let mut settings = CollectionSettings::default();
         if value.setting.transferable_items {
             settings.0.insert(CollectionSetting::TransferableItems)

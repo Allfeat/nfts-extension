@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Build nfts-extension-impls-runtime" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="build --package nfts-extension-impls-runtime --lib" />
+  <configuration default="false" name="Build nfts-extension-types" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+    <option name="command" value="build --package nfts-extension-types --lib" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$/impls_runtime" />
     <option name="emulateTerminal" value="false" />
     <option name="channel" value="DEFAULT" />

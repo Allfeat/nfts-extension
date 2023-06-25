@@ -3,7 +3,7 @@
 #[ink::contract]
 mod test_contracts {
     use nfts_extension::errors::NftsError;
-    use nfts_extension::types::{CreateInput, DefaultCollectionConfigExt, Origin};
+    use nfts_extension::types::{CreateInput, DefaultCollectionConfigExt};
     use nfts_extension::*;
 
     #[ink(storage)]
@@ -24,7 +24,7 @@ mod test_contracts {
         ) -> Result<(), NftsError> {
             NftsExtension::create(CreateInput {
                 origin: Origin::Caller,
-                admin: admin,
+                admin,
                 config,
             })?;
             Ok(())
