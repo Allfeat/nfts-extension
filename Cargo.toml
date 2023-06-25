@@ -1,0 +1,37 @@
+[package]
+name = "nfts-extension"
+version = "0.1.0"
+authors = ["Allfeat labs. - tech@allfeat.com"]
+edition = "2021"
+
+[workspace]
+members = [
+    "test_contracts",
+    "impls_runtime"
+]
+
+[lib]
+path = "src/lib.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ink_metadata = { version = "4.2.1", optional = true }
+ink = { version = "4.2.1", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3.2.2", default-features = false, features = [
+    "derive",
+    "max-encoded-len"
+] }
+scale-info = { version = "2.5.0", default-features = false, features = [
+    "derive",
+], optional = true }
+
+[features]
+default = ["std"]
+std = [
+    "ink_metadata/std",
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+]

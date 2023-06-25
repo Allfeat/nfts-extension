@@ -1,0 +1,36 @@
+[package]
+name = "nfts-extension-test-contracts"
+version = "0.1.0"
+authors = ["Allfeat labs. - tech@allfeat.com"]
+edition = "2021"
+
+[dependencies]
+ink_metadata = { version = "4.2.1", optional = true }
+ink = { version = "4.2.1", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3.2.2", default-features = false, features = [
+    "derive",
+    "max-encoded-len"
+] }
+scale-info = { version = "2.5.0", default-features = false, features = [
+    "derive",
+], optional = true }
+
+nfts-extension = { path = "..", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { version = "4.2.1" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "ink_metadata/std",
+    "scale/std",
+    "scale-info/std",
+    "nfts-extension/std"
+]
+e2e-tests = []
