@@ -14,11 +14,12 @@ use sp_runtime::traits::StaticLookup;
 use sp_runtime::{DispatchError, SaturatedConversion};
 
 use codec::{Decode, Encode, MaxEncodedLen};
-use frame_support::dispatch::RawOrigin;
 
 use crate::errors::NftsError;
 use nfts_extension_types::{CollectionConfigExt, MintTypeExt};
 use sp_std::marker::PhantomData;
+
+use pallet_contracts::RawOrigin;
 
 pub type SubstrateCreateInput<T> =
     nfts_extension_types::CreateInput<<T as frame_system::Config>::AccountId>;
@@ -54,6 +55,7 @@ where
     T: pallet_contracts::Config + pallet_nfts::Config,
     <<T as SysConfig>::Lookup as StaticLookup>::Source: From<<T as SysConfig>::AccountId>,
     <T as SysConfig>::AccountId: From<[u8; 32]>,
+    <T as SysConfig>::RuntimeOrigin: From<pallet_contracts::RawOrigin<<T as SysConfig>::AccountId>>,
 {
     fn call<E: Ext<T = T>>(
         &mut self,
@@ -73,7 +75,7 @@ where
 
                 let caller = env.ext().address().clone();
                 let call_result = pallet_nfts::Pallet::<T>::create(
-                    RawOrigin::Signed(caller).into(),
+                    RawOrigin::Contract(caller).into(),
                     admin.into(),
                     CollectionConfig {
                         settings: Default::default(),
