@@ -13,7 +13,7 @@ frame-system = { version = "4.0.0-dev", default-features = false, git = "https:/
 log = { version = "0.4.17", default-features = false }
 
 pallet-nfts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
-pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
+pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/allfeat/pallet-contracts.git", branch = "polkadot-v0.9.42" }
 pallet-contracts-primitives = { version = "7.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.42" }
 
 codec = { package = "parity-scale-codec", version = "3.2.2", default-features = false, features = [

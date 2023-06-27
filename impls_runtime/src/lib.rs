@@ -73,7 +73,7 @@ where
 
                 let caller = env.ext().address().clone();
                 let call_result = pallet_nfts::Pallet::<T>::create(
-                    RawOrigin::Root.into(),
+                    RawOrigin::Signed(caller).into(),
                     admin.into(),
                     CollectionConfig {
                         settings: Default::default(),
