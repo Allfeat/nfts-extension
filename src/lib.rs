@@ -6,7 +6,7 @@ pub mod types;
 pub use nfts_extension_types::{CollectionConfigExt, Origin};
 
 use crate::errors::NftsError;
-use crate::types::DefaultCreateInput;
+use crate::types::{DefaultCollectionDetailsExt, DefaultCreateInput};
 use ink::env::{DefaultEnvironment, Environment};
 use scale::{Decode, Encode};
 
@@ -18,6 +18,17 @@ pub type CollectionId = u32;
 pub struct NftsExtension;
 
 impl NftsExtension {
+    // Getters
+    /// Query the collection details of a specified ID
+    /// TODO: make the input id as an Option and if None, query all the collections ?
+    pub fn get_collection(id: CollectionId) -> Option<DefaultCollectionDetailsExt> {
+        ::ink::env::chain_extension::ChainExtensionMethod::build(0002u32)
+            .input::<CollectionId>()
+            .output::<Option<DefaultCollectionDetailsExt>, false>()
+            .ignore_error_code()
+            .call(&id)
+    }
+
     /// Calls create() in the pallet-assets
     pub fn create(input: DefaultCreateInput) -> Result<(), NftsError> {
         ::ink::env::chain_extension::ChainExtensionMethod::build(0001u32)

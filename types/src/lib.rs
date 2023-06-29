@@ -97,3 +97,21 @@ pub struct CollectionConfigExt<Price, BlockNumber, CollectionId> {
     /// Default settings each item will get during the mint.
     pub mint_settings: MintSettingsExt<Price, BlockNumber, CollectionId>,
 }
+
+#[derive(Debug, Clone, Encode, Decode, Eq, PartialEq, MaxEncodedLen)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct CollectionDetailsExt<AccountId, DepositBalance> {
+    /// Collection's owner.
+    pub owner: AccountId,
+    /// The total balance deposited by the owner for all the storage data associated with this
+    /// collection. Used by `destroy`.
+    pub owner_deposit: DepositBalance,
+    /// The total number of outstanding items of this collection.
+    pub items: u32,
+    /// The total number of outstanding item metadata of this collection.
+    pub item_metadatas: u32,
+    /// The total number of outstanding item configs of this collection.
+    pub item_configs: u32,
+    /// The total number of attributes for this collection.
+    pub attributes: u32,
+}

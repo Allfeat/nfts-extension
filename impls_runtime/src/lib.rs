@@ -7,24 +7,24 @@ use pallet_contracts::chain_extension::{
     ChainExtension, Environment, Ext, InitState, RetVal, SysConfig,
 };
 use pallet_nfts::{
-    weights::WeightInfo, CollectionConfig, CollectionSetting, CollectionSettings, Incrementable,
-    ItemSetting, MintSettings, MintType,
+    weights::WeightInfo, CollectionConfig, CollectionSetting, CollectionSettings, ItemSetting,
+    MintSettings,
 };
 use sp_runtime::traits::StaticLookup;
 use sp_runtime::{DispatchError, SaturatedConversion};
 
 use codec::{Decode, Encode, MaxEncodedLen};
+use frame_support::pallet_prelude::Get;
 
 use crate::errors::NftsError;
-use nfts_extension_types::{
-    CollectionConfigExt, CollectionSettingsExt, ItemSettingsExt, MintSettingsExt, MintTypeExt,
-};
+use nfts_extension_types::CollectionConfigExt;
 use sp_std::marker::PhantomData;
 
 use pallet_contracts::RawOrigin;
 
 enum NftsFunc {
     Create,
+    GetCollection,
 }
 
 impl TryFrom<u16> for NftsFunc {
@@ -33,6 +33,7 @@ impl TryFrom<u16> for NftsFunc {
     fn try_from(value: u16) -> Result<Self, Self::Error> {
         match value {
             1 => Ok(NftsFunc::Create),
+            2 => Ok(NftsFunc::GetCollection),
             _ => Err(DispatchError::Other(
                 "PalletNftsExtension: Unimplemented func_id",
             )),
@@ -63,7 +64,7 @@ where
         let func_id: NftsFunc = env.func_id().try_into()?;
         let mut env = env.buf_in_buf_out();
 
-        return match func_id {
+        match func_id {
             NftsFunc::Create => {
                 let args: CreateInput<NftsBalanceOf<T>, T::BlockNumber, T::CollectionId> =
                     env.read_as()?;
@@ -83,17 +84,27 @@ where
                         mint_settings: Default::default(),
                     },
                 );
-                log::info!("{:?}", call_result);
-                match call_result {
+                return match call_result {
                     Err(e) => {
                         let mapped_error = NftsError::try_from(e)?;
-                        log::info!("{:?}", mapped_error);
                         Ok(RetVal::Converging(mapped_error as u32))
                     }
                     Ok(_) => Ok(RetVal::Converging(NftsError::Success as u32)),
-                }
+                };
+            }
+
+            NftsFunc::GetCollection => {
+                let id: T::CollectionId = env.read_as()?;
+
+                let base_weight = <T as frame_system::Config>::DbWeight::get().reads(1);
+                env.charge_weight(base_weight)?;
+
+                let collection_details = pallet_nfts::Collection::<T>::get(id);
+                env.write(&collection_details.encode(), false, None)?;
             }
         };
+
+        Ok(RetVal::Converging(NftsError::Success as u32))
     }
 }
 

@@ -3,7 +3,9 @@
 #[ink::contract]
 mod test_contracts {
     use nfts_extension::errors::NftsError;
-    use nfts_extension::types::{DefaultCollectionConfigExt, DefaultCreateInput};
+    use nfts_extension::types::{
+        DefaultCollectionConfigExt, DefaultCollectionDetailsExt, DefaultCreateInput,
+    };
     use nfts_extension::*;
 
     #[ink(storage)]
@@ -14,6 +16,11 @@ mod test_contracts {
         #[ink(constructor, payable)]
         pub fn new() -> Self {
             Default::default()
+        }
+
+        #[ink(message)]
+        pub fn get_collection(&mut self, id: CollectionId) -> Option<DefaultCollectionDetailsExt> {
+            NftsExtension::get_collection(id)
         }
 
         #[ink(message, payable)]
@@ -82,7 +89,6 @@ mod test_contracts {
             Ok(())
         }*/
 
-        //#[ink_e2e::test]
-        //async fn create_test(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {}
-    }
+    //#[ink_e2e::test]
+    //async fn create_test(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {}
 }
