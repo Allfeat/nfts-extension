@@ -16,13 +16,12 @@ use sp_runtime::{DispatchError, SaturatedConversion};
 use codec::{Decode, Encode, MaxEncodedLen};
 
 use crate::errors::NftsError;
-use nfts_extension_types::{CollectionConfigExt, MintTypeExt};
+use nfts_extension_types::{
+    CollectionConfigExt, CollectionSettingsExt, ItemSettingsExt, MintSettingsExt, MintTypeExt,
+};
 use sp_std::marker::PhantomData;
 
 use pallet_contracts::RawOrigin;
-
-pub type SubstrateCreateInput<T> =
-    nfts_extension_types::CreateInput<<T as frame_system::Config>::AccountId>;
 
 enum NftsFunc {
     Create,
@@ -55,7 +54,7 @@ where
     T: pallet_contracts::Config + pallet_nfts::Config,
     <<T as SysConfig>::Lookup as StaticLookup>::Source: From<<T as SysConfig>::AccountId>,
     <T as SysConfig>::AccountId: From<[u8; 32]>,
-    <T as SysConfig>::RuntimeOrigin: From<pallet_contracts::RawOrigin<<T as SysConfig>::AccountId>>,
+    <T as SysConfig>::RuntimeOrigin: From<RawOrigin<<T as SysConfig>::AccountId>>,
 {
     fn call<E: Ext<T = T>>(
         &mut self,
@@ -66,7 +65,8 @@ where
 
         return match func_id {
             NftsFunc::Create => {
-                let args: CreateInput = env.read_as()?;
+                let args: CreateInput<NftsBalanceOf<T>, T::BlockNumber, T::CollectionId> =
+                    env.read_as()?;
                 let admin: T::AccountId = args.admin.into();
                 //let CollectionConfigWrapperFor::<T>(config) = args.config.into();
 
@@ -98,9 +98,10 @@ where
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
-struct CreateInput {
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+struct CreateInput<Price, BlockNumber, CollectionId> {
     pub admin: [u8; 32],
-    //pub config: CollectionConfigExt<P, B, C>,
+    pub config: CollectionConfigExt<Price, BlockNumber, CollectionId>, //pub config: CollectionConfigExt<P, B, C>,
 }
 
 type NftsBalanceOf<T> = <<T as pallet_nfts::Config>::Currency as Currency<
@@ -146,11 +147,11 @@ impl<T: pallet_nfts::Config> From<CollectionConfigExtFor<T>> for CollectionConfi
             T::BlockNumber,
             T::CollectionId,
         >::default();
-        mint_settings.mint_type = match value.mint_settings.mint_type {
-            MintTypeExt::Issuer => MintType::Issuer,
-            MintTypeExt::Public => MintType::Public,
-            MintTypeExt::HolderOf(_) => MintType::HolderOf(T::CollectionId::initial_value()),
-        };
+        // mint_settings.mint_type = match value.mint_settings.mint_type {
+        //     MintTypeExt::Issuer => MintType::Issuer,
+        //     MintTypeExt::Public => MintType::Public,
+        //     MintTypeExt::HolderOf(_) => MintType::HolderOf(T::CollectionId::initial_value()),
+        // };
         mint_settings.price = match value.mint_settings.price {
             Some(x) => Some(x.saturated_into()),
             None => None,

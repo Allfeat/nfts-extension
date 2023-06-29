@@ -4,9 +4,9 @@ use codec::{Decode, Encode, MaxEncodedLen};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct CreateInput<AccountId> {
+pub struct CreateInput<AccountId, Price, BlockNumber, CollectionId> {
     pub admin: AccountId,
-    //pub config: CollectionConfigExt<Price, BlockNumber, CollectionId>,
+    pub config: CollectionConfigExt<Price, BlockNumber, CollectionId>, //pub config: CollectionConfigExt<Price, BlockNumber, CollectionId>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen)]
@@ -19,7 +19,7 @@ pub enum MintTypeExt<CollectionId> {
     Issuer,
     /// Anyone could mint items.
     Public,
-    /// Only holders of items in specified collection could mint new items.
+    // Only holders of items in specified collection could mint new items.
     HolderOf(CollectionId),
 }
 

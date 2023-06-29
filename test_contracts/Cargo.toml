@@ -17,6 +17,7 @@ scale-info = { version = "2.5.0", default-features = false, features = [
 ], optional = true }
 
 nfts-extension = { path = "..", default-features = false }
+nfts-extension-types = { version = "0.1.0", default-features = false, path = "../types"}
 
 [dev-dependencies]
 ink_e2e = { version = "4.2.1" }
@@ -31,6 +32,7 @@ std = [
     "ink_metadata/std",
     "scale/std",
     "scale-info/std",
-    "nfts-extension/std"
+    "nfts-extension/std",
+    "nfts-extension-types/std"
 ]
 e2e-tests = []
