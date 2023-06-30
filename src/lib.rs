@@ -18,7 +18,37 @@ pub type CollectionId = u32;
 pub struct NftsExtension;
 
 impl NftsExtension {
-    // Getters
+    // Getters constants
+    pub fn get_approvals_limit() -> u32 {
+        ::ink::env::chain_extension::ChainExtensionMethod::build(0100u32)
+            .input::<()>()
+            .output::<u32, false>()
+            .ignore_error_code()
+            .call(&())
+    }
+    pub fn get_attribute_deposit_base() -> Balance {
+        ::ink::env::chain_extension::ChainExtensionMethod::build(0101u32)
+            .input::<()>()
+            .output::<Balance, false>()
+            .ignore_error_code()
+            .call(&())
+    }
+    pub fn get_collection_deposit() -> Balance {
+        ::ink::env::chain_extension::ChainExtensionMethod::build(0102u32)
+            .input::<()>()
+            .output::<Balance, false>()
+            .ignore_error_code()
+            .call(&())
+    }
+    pub fn get_deposit_per_byte() -> Balance {
+        ::ink::env::chain_extension::ChainExtensionMethod::build(0103u32)
+            .input::<()>()
+            .output::<Balance, false>()
+            .ignore_error_code()
+            .call(&())
+    }
+
+    // Getters chain state
     /// Query the collection details of a specified ID
     /// TODO: make the input id as an Option and if None, query all the collections ?
     pub fn get_collection(id: CollectionId) -> Option<DefaultCollectionDetailsExt> {

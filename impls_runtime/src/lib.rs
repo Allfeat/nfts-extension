@@ -23,8 +23,15 @@ use sp_std::marker::PhantomData;
 use pallet_contracts::RawOrigin;
 
 enum NftsFunc {
+    // Extrinsics
     Create,
+    // Chain state
     GetCollection,
+    // Constants
+    GetApprovalsLimit,
+    GetAttributeDepositBase,
+    GetCollectionDeposit,
+    GetDepositPerByte,
 }
 
 impl TryFrom<u16> for NftsFunc {
@@ -34,6 +41,10 @@ impl TryFrom<u16> for NftsFunc {
         match value {
             1 => Ok(NftsFunc::Create),
             2 => Ok(NftsFunc::GetCollection),
+            100 => Ok(NftsFunc::GetApprovalsLimit),
+            101 => Ok(NftsFunc::GetAttributeDepositBase),
+            102 => Ok(NftsFunc::GetCollectionDeposit),
+            103 => Ok(NftsFunc::GetDepositPerByte),
             _ => Err(DispatchError::Other(
                 "PalletNftsExtension: Unimplemented func_id",
             )),
@@ -102,6 +113,36 @@ where
                 let collection_details = pallet_nfts::Collection::<T>::get(id);
                 env.write(&collection_details.encode(), false, None)?;
             }
+
+            // Constants
+            NftsFunc::GetApprovalsLimit => {
+                let base_weight = <T as frame_system::Config>::DbWeight::get().reads(1);
+                env.charge_weight(base_weight)?;
+
+                let x = T::ApprovalsLimit::get();
+                env.write(&x.encode(), false, None)?;
+            }
+            NftsFunc::GetAttributeDepositBase => {
+                let base_weight = <T as frame_system::Config>::DbWeight::get().reads(1);
+                env.charge_weight(base_weight)?;
+
+                let x = T::AttributeDepositBase::get();
+                env.write(&x.encode(), false, None)?;
+            }
+            NftsFunc::GetCollectionDeposit => {
+                let base_weight = <T as frame_system::Config>::DbWeight::get().reads(1);
+                env.charge_weight(base_weight)?;
+
+                let x = T::CollectionDeposit::get();
+                env.write(&x.encode(), false, None)?;
+            }
+            NftsFunc::GetDepositPerByte => {
+                let base_weight = <T as frame_system::Config>::DbWeight::get().reads(1);
+                env.charge_weight(base_weight)?;
+
+                let x = <T as pallet_nfts::Config>::DepositPerByte::get();
+                env.write(&x.encode(), false, None)?;
+            }
         };
 
         Ok(RetVal::Converging(NftsError::Success as u32))
@@ -112,7 +153,7 @@ where
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 struct CreateInput<Price, BlockNumber, CollectionId> {
     pub admin: [u8; 32],
-    pub config: CollectionConfigExt<Price, BlockNumber, CollectionId>, //pub config: CollectionConfigExt<P, B, C>,
+    pub config: CollectionConfigExt<Price, BlockNumber, CollectionId>,
 }
 
 type NftsBalanceOf<T> = <<T as pallet_nfts::Config>::Currency as Currency<

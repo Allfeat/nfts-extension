@@ -18,6 +18,25 @@ mod test_contracts {
             Default::default()
         }
 
+        // Constants query
+        #[ink(message)]
+        pub fn get_approval_limits(&mut self) -> u32 {
+            NftsExtension::get_approvals_limit()
+        }
+        #[ink(message)]
+        pub fn get_attribute_deposit_base(&mut self) -> Balance {
+            NftsExtension::get_attribute_deposit_base()
+        }
+        #[ink(message)]
+        pub fn get_collection_deposit(&mut self) -> Balance {
+            NftsExtension::get_collection_deposit()
+        }
+        #[ink(message)]
+        pub fn get_deposit_per_bytet(&mut self) -> Balance {
+            NftsExtension::get_deposit_per_byte()
+        }
+
+        // Chain state query
         #[ink(message)]
         pub fn get_collection(&mut self, id: CollectionId) -> Option<DefaultCollectionDetailsExt> {
             NftsExtension::get_collection(id)
